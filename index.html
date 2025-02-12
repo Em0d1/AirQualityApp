@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Air Quality Monitoring App</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      background: #f7f7f7;
+    }
+    h1 {
+      text-align: center;
+    }
+    .search-bar {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .search-bar input {
+      padding: 6px;
+      font-size: 16px;
+    }
+    .search-bar button {
+      padding: 6px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-left: 5px;
+    }
+    #results {
+      max-width: 600px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 15px;
+      border-radius: 4px;
+    }
+    .location-block {
+      border: 1px solid #ddd;
+      margin: 10px 0;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Air Quality Monitoring App</h1>
+  <div class="search-bar">
+    <input type="text" id="cityInput" placeholder="Enter a city name">
+    <button id="searchBtn">Search</button>
+  </div>
+  
+  <div id="results"></div>
+
+  <script>
+    const cityInput = document.getElementById('cityInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const resultsDiv = document.getElementById('results');
+
+    searchBtn.addEventListener('click', () => {
+      const city = cityInput.value.trim();
+      if (city) {
+        fetchData(city);
+      } else {
+        resultsDiv.innerHTML = "<p>Please enter a city.</p>";
+      }
+    });
+
+    async function fetchData(city) {
+      const url = `https://api.openaq.org/v2/latest?city=${encodeURIComponent(city)}`;
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Network response was not ok');
+        const data = await res.json();
+
+        resultsDiv.innerHTML = '';
+        if (data.results && data.results.length > 0) {
+          data.results.forEach(loc => {
+            const block = document.createElement('div');
+            block.className = 'location-block';
+            block.innerHTML = `<h3>${loc.location}</h3>`;
+            loc.measurements.forEach(m => {
+              const p = document.createElement('p');
+              p.textContent = `${m.parameter.toUpperCase()}: ${m.value} ${m.unit}`;
+              block.appendChild(p);
+            });
+            resultsDiv.appendChild(block);
+          });
+        } else {
+          resultsDiv.innerHTML = `<p>No data found for "${city}".</p>`;
+        }
+      } catch (err) {
+        resultsDiv.innerHTML = '<p>Something went wrong. Try again later.</p>';
+      }
+    }
+  </script>
+</body>
+</html>
