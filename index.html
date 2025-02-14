@@ -64,7 +64,7 @@
     });
 
     async function fetchData(city) {
-      const url = `https://api.openaq.org/v2/latest?city=${encodeURIComponent(city)}`;
+      const url = `https://cors-anywhere.herokuapp.com/https://api.openaq.org/v2/latest?city=${encodeURIComponent(city)}`;
       try {
         const res = await fetch(url);
         if (!res.ok) throw new Error('Network response was not ok');
